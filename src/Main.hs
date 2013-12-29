@@ -1,15 +1,21 @@
 module Main where
 
 import System.Console.ANSI
+import System.IO (hFlush, stdout)
+import Data.List (intercalate)
+import Data.List.Split (splitOneOf)
+import Data.Char (toLower, toUpper)
+
 
 main :: IO ()
 main = do
-    putStrLn "You fight with the strength of many men sir Knight..."
-    putStrLn "You have proved yourself worthy; will you join me?"
-    putStrLn "You make me sad. So be it. Come, Patsy."
     intro
+    _ <- ask "project name"
+    _ <- ask "name"
+    _ <- ask "email"
+    _ <- ask "github account"
+    _ <- ask "project in less than a dozen words"
     end
-
 
 
 colorPutStr :: Color -> String -> IO ()
@@ -20,6 +26,8 @@ colorPutStr color str = do
     putStr str
     setSGR []
 
+projectNameFromString :: String -> String
+projectNameFromString str = intercalate "-" (splitOneOf " -" (map toLower str))
 
 bk :: String -> IO ()
 bk str = colorPutStr Green ("Bridgekeeper: " ++ str ++ "\n")
@@ -28,6 +36,23 @@ bkn str = colorPutStr Green ("Bridgekeeper: " ++ str)
 you :: String -> IO ()
 you str = colorPutStr Yellow ("Bridgekeeper: " ++ str ++ "\n")
 
+
+capitalize :: String -> String
+capitalize str = concatMap capitalizeWord (splitOneOf " -" str)
+    where
+        capitalizeWord :: String -> String
+        capitalizeWord (x:xs) = toUpper x:map toLower xs
+        capitalizeWord _ = []
+
+ask :: String -> IO String
+ask info = do
+    bk $ "What is your " ++ info ++ "?"
+    putStr "> "
+    hFlush stdout
+    getLine
+
+
+
 intro :: IO ()
 intro = do
     bk "Stop!"
@@ -35,6 +60,7 @@ intro = do
     bk "must answer me these questions three,"
     bk "ere the other side he see."
     you "Ask me the questions, bridgekeeper, I am not afraid.\n"
+
 
 end :: IO ()
 end = do
