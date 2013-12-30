@@ -4,18 +4,36 @@ import System.Console.ANSI
 import System.IO (hFlush, stdout)
 import Data.List (intercalate)
 import Data.List.Split (splitOneOf)
-import Data.Char (toLower, toUpper)
+import Data.Char (toLower, toUpper, isNumber, isLetter)
+import Paths_holyhaskell
 
 
 main :: IO ()
 main = do
+    pkgFilePath <- getDataFileName "scaffold/LICENSE"
+    templateContent <- readFile pkgFilePath
     intro
-    _ <- ask "project name"
+    project <- ask "project name"
+    ioassert (checkProjectName project)
+        "Use only letters, numbers, spaces and dashes please"
+    let projectname = projectNameFromString project
+        modulename = capitalize project
     _ <- ask "name"
     _ <- ask "email"
     _ <- ask "github account"
     _ <- ask "project in less than a dozen words"
     end
+
+
+ioassert :: Bool -> String -> IO ()
+ioassert True _ = return ()
+ioassert False str = error str
+
+
+checkProjectName :: String -> Bool
+checkProjectName [] = False
+checkProjectName str =
+        all (\c -> isLetter c || isNumber c || c=='-' || c== ' ') str
 
 
 colorPutStr :: Color -> String -> IO ()
@@ -42,7 +60,7 @@ capitalize str = concatMap capitalizeWord (splitOneOf " -" str)
     where
         capitalizeWord :: String -> String
         capitalizeWord (x:xs) = toUpper x:map toLower xs
-        capitalizeWord _ = []
+        capitalizeWord _      = []
 
 ask :: String -> IO String
 ask info = do
