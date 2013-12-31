@@ -44,8 +44,10 @@ colorPutStr color str = do
     putStr str
     setSGR []
 
+
 projectNameFromString :: String -> String
 projectNameFromString str = intercalate "-" (splitOneOf " -" (map toLower str))
+
 
 bk :: String -> IO ()
 bk str = colorPutStr Green ("Bridgekeeper: " ++ str ++ "\n")
@@ -62,13 +64,13 @@ capitalize str = concatMap capitalizeWord (splitOneOf " -" str)
         capitalizeWord (x:xs) = toUpper x:map toLower xs
         capitalizeWord _      = []
 
+
 ask :: String -> IO String
 ask info = do
     bk $ "What is your " ++ info ++ "?"
     putStr "> "
     hFlush stdout
     getLine
-
 
 
 intro :: IO ()
