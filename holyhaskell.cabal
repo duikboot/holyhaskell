@@ -15,18 +15,18 @@ category:               Unknown
 build-type:             Simple
 -- extra-source-files:
 cabal-version:          >=1.10
-data-files:           scaffold/LICENSE
-                      -- , scaffold/gitignore
-                      -- , scaffold/interact
-                      -- , scaffold/project.cabal
-                      -- , scaffold/Setup.hs
-                      -- , scaffold/src/Main.hs
-                      -- , scaffold/src/ModuleName/Coconut.hs
-                      -- , scaffold/src/ModuleName.hs
-                      -- , scaffold/src/ModuleName/Swallow.hs
-                      -- , scaffold/test/ModuleName/Coconut/Test.hs
-                      -- , scaffold/test/ModuleName/Swallow/Test.hs
-                      -- , scaffold/test/Test.hs
+data-files:             scaffold/LICENSE
+                        , scaffold/gitignore
+                        , scaffold/interact
+                        , scaffold/project.cabal
+                        , scaffold/Setup.hs
+                        , scaffold/src/Main.hs
+                        , scaffold/src/ModuleName/Coconut.hs
+                        , scaffold/src/ModuleName.hs
+                        , scaffold/src/ModuleName/Swallow.hs
+                        , scaffold/test/ModuleName/Coconut/Test.hs
+                        , scaffold/test/ModuleName/Swallow/Test.hs
+                        , scaffold/test/Test.hs
 
 executable holyhaskell
   main-is:              Main.hs
@@ -35,6 +35,10 @@ executable holyhaskell
   build-depends:        base >=4.6 && <4.7
                         , ansi-terminal
                         , split
+                        , filepath
+                        , directory
+                        , hastache
+                        , bytestring
   hs-source-dirs:       src
   ghc-options:          -Wall
   default-language:     Haskell2010

@@ -1,12 +1,29 @@
+{-# LANGUAGE DeriveDataTypeable #-}
 module Main where
 
 import System.Console.ANSI
 import System.IO (hFlush, stdout)
+import System.Directory
+import System.FilePath.Posix (takeDirectory, (</>))
 import Data.List (intercalate)
 import Data.List.Split (splitOneOf)
 import Data.Char (toLower, toUpper, isNumber, isLetter)
+import Data.Data
+import Text.Hastache
+import Text.Hastache.Context
+import qualified Data.ByteString            as BS
+import qualified Data.ByteString.Lazy.Char8 as LZ
 import Paths_holyhaskell
 
+data Project = Project {
+    projectName   :: String
+    , moduleName    :: String
+    , author        :: String
+    , mail          :: String
+    , ghaccount     :: String
+    , synopsis      :: String
+    , year          :: String
+    } deriving (Data, Typeable)
 
 main :: IO ()
 main = do
@@ -18,11 +35,33 @@ main = do
         "Use only letters, numbers, spaces and dashes please"
     let projectname = projectNameFromString project
         modulename = capitalize project
-    _ <- ask "name"
-    _ <- ask "email"
-    _ <- ask "github account"
-    _ <- ask "project in less than a dozen words"
+    in_author <- ask "name"
+    in_email <- ask "email"
+    in_ghaccount <- ask "github account"
+    in_synopsis <- ask "project in less than a dozen words"
+    current_year <- getCurrentYear
+    createProject $ Project projectname modulename in_author in_email
+                        in_ghaccount in_synopsis current_year
     end
+
+
+createProject :: Project -> IO ()
+createProject p = do
+    let context = mkGenericContext p
+    createDirectory (projectName p)
+    setCurrentDirectory (projectName p)
+    genFile context "gitignore"      $ ".gitignore"
+    genFile context "project.cabal"  $ (projectName p) ++ ".cabal"
+    genFile context "src/Main.hs"   $ "src" </> "Main.hs"
+
+
+genFile :: MuContext IO -> FilePath -> FilePath -> IO ()
+genFile context filename outputFileName = do
+    pkgfileName <- getDataFileName ("scaffold/"++filename)
+    template <- BS.readFile pkgfileName
+    transformedFile <- hastacheStr defaultConfig template context
+    createDirectoryIfMissing True (takeDirectory outputFileName)
+    LZ.writeFile outputFileName transformedFile
 
 
 ioassert :: Bool -> String -> IO ()
